@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Versatyl Chantier">
+    <title>Versatyl Chantier</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f7;
+            overflow-x: hidden;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .screen {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+            color: white;
+            padding: 20px;
+            margin: -20px -20px 20px -20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .btn {
+            background: #FF6B35;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255,107,53,0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #FF6B35;
+            border: 2px solid #FF6B35;
+            box-shadow: none;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+        }
+
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            font-size: 15px;
+            background: #f9f9f9;
+        }
+
+        .input-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .stat-box .number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #FF6B35;
+        }
+
+        .stat-box .label {
+            font-size: 12px;
+            color: #86868b;
+            margin-top: 4px;
+        }
+
+        .timer-display {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .timer-display .time {
+            font-size: 48px;
+            font-weight: 700;
+            color: #FF6B35;
+            font-family: 'Courier New', monospace;
+        }
+
+        .timer-display .label {
+            font-size: 14px;
+            color: #86868b;
+            margin-top: 8px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row .label {
+            color: #86868b;
+            font-size: 14px;
+        }
+
+        .info-row .value {
+            color: #1d1d1f;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .photo-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #e5e5e7;
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-item .remove {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255,59,48,0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tabs {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            border-top: 1px solid #e5e5e7;
+            padding: 5px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 12px;
+            color: #86868b;
+            background: none;
+            border: none;
+        }
+
+        .tab.active {
+            color: #FF6B35;
+            font-weight: 600;
+        }
+
+        .tab .icon {
+            font-size: 20px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .project-list {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .project-item {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .project-item:active {
+            background: #f9f9f9;
+        }
+
+        .project-item .name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f0f0f0;
+            border-top-color: #FF6B35;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .alert {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .alert .title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1d1d1f;
+        }
+
+        .alert .message {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #86868b;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .search-bar {
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            font-size: 15px;
+            border: 1px solid #e5e5e7;
+            width: 100%;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #FF6B35;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #86868b;
+        }
+
+        .empty-state .icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ÉCRAN: Configuration -->
+    <div class="screen active" id="configScreen">
+        <div class="header">
+            <h1>⚙️ Configuration</h1>
+            <div class="subtitle">Configuration initiale requise</div>
+        </div>
+
+        <div class="card">
+            <div class="input-group">
+                <label>Nom de l'employé *</label>
+                <input type="text" id="configEmployeeName" placeholder="Ex: Patrice Lavoie">
+            </div>
+
+            <div class="input-group">
+                <label>API Key Trello *</label>
+                <input type="text" id="configApiKey" placeholder="Votre clé API Trello">
+                <div class="hint">Obtenir sur: https://trello.com/app-key</div>
+            </div>
+
+            <div class="input-group">
+                <label>Token Trello *</label>
+                <input type="text" id="configToken" placeholder="Votre token Trello">
+                <div class="hint">Générer sur la même page que la clé API</div>
+            </div>
+
+            <div class="input-group">
+                <label>Board ID *</label>
+                <input type="text" id="configBoardId" placeholder="ID du board Trello">
+                <div class="hint">Dans l'URL du board: trello.com/b/[BOARD_ID]/...</div>
+            </div>
+
+            <div class="input-group">
+                <label>Nom de l'étiquette *</label>
+                <input type="text" id="configLabelName" placeholder="Ex: Projet actif">
+                <div class="hint">Filtre les cartes par cette étiquette</div>
+            </div>
+
+            <button class="btn" onclick="saveConfig()">Enregistrer et démarrer</button>
+        </div>
+    </div>
+
+    <!-- ÉCRAN: Accueil -->
+    <div class="screen" id="homeScreen">
+        <div class="header">
+            <h1>Versatyl Chantier</h1>
+            <div class="subtitle" id="homeEmployeeName">Employé</div>
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat-box">
+                <div class="number" id="homeReportCount">0</div>
+                <div class="label">Rapports</div>
+            </div>
+            <div class="stat-box">
+                <div class="number" id="homePhotoCount">0</div>
+                <div class="label">Photos</div>
+            </div>
+        </div>
+
+        <div id="activeReportCard" style="display: none;">
+            <div class="card" style="background: #FF6B35; color: white;" onclick="continueActiveReport()">
+                <div class="badge" style="background: rgba(255,255,255,0.3);">⏱️ EN COURS</div>
+                <h3 id="activeReportTitle" style="margin-bottom: 8px;">Projet</h3>
+                <div style="font-size: 32px; font-weight: 700; font-family: 'Courier New', monospace; margin: 8px 0;" id="activeReportTime">00:00:00</div>
+                <div style="font-size: 14px; opacity: 0.9;">Appuyez pour continuer →</div>
+            </div>
+        </div>
+
+        <button class="btn" onclick="showScreen('selectProjectScreen')">+ Nouveau rapport</button>
+
+        <div id="recentReports"></div>
+
+        <button class="btn btn-secondary" onclick="showScreen('configScreen')" style="margin-top: 20px;">⚙️ Paramètres</button>
+    </div>
+
+    <!-- ÉCRAN: Sélection projet -->
+    <div class="screen" id="selectProjectScreen">
+        <div class="header">
+            <h1>Choisir un projet</h1>
+            <div class="subtitle">Projets Trello</div>
+        </div>
+
+        <input type="text" class="search-bar" id="projectSearch" placeholder="Rechercher..." oninput="filterProjects()">
+
+        <div id="projectList" class="project-list"></div>
+
+        <button class="btn btn-secondary" onclick="showScreen('homeScreen')">Retour</button>
+    </div>
+
+    <!-- ÉCRAN: Rapport actif -->
+    <div class="screen" id="activeReportScreen">
+        <div class="header">
+            <h1 id="reportProjectName">Rapport</h1>
+            <div class="subtitle">En cours...</div>
+        </div>
+
+        <!-- Tab: Aperçu -->
+        <div id="tabOverview" class="tab-content">
+            <div class="timer-display">
+                <div class="time" id="reportTimer">00:00:00</div>
+                <div class="label">Temps écoulé</div>
+            </div>
+
+            <div class="card">
+                <div class="info-row">
+                    <span class="label">📍 Distance</span>
+                    <span class="value" id="reportDistance">0 km</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">📸 Photos</span>
+                    <span class="value" id="reportPhotoCount">0 prises</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">📝 Notes</span>
+                    <span class="value" id="reportNotesStatus">Aucune</span>
+                </div>
+            </div>
+
+            <button class="btn" onclick="showScreen('exportScreen')">Terminer et exporter</button>
+            <button class="btn btn-secondary" onclick="cancelReport()">Annuler</button>
+        </div>
+
+        <!-- Tab: Photos -->
+        <div id="tabPhotos" class="tab-content" style="display: none;">
+            <button class="btn" onclick="document.getElementById('photoInput').click()">📷 Ajouter des photos</button>
+            <input type="file" id="photoInput" accept="image/*" multiple onchange="addPhotos(event)">
+
+            <div id="photoGrid" class="photo-grid"></div>
+
+            <div class="hint" style="text-align: center; margin-top: 20px;">
+                Appuyez sur ✕ pour supprimer une photo
+            </div>
+        </div>
+
+        <!-- Tab: Notes -->
+        <div id="tabNotes" class="tab-content" style="display: none;">
+            <div class="input-group">
+                <label>Notes du chantier</label>
+                <textarea id="reportNotes" placeholder="Décrivez le travail effectué, observations, etc." oninput="updateNotes()"></textarea>
+                <div class="hint">💡 Utilisez la dictée vocale de votre clavier iOS (🎤)</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('tabOverview', this)">
+                <span class="icon">📊</span>
+                Aperçu
+            </button>
+            <button class="tab" onclick="switchTab('tabPhotos', this)">
+                <span class="icon">📸</span>
+                Photos
+            </button>
+            <button class="tab" onclick="switchTab('tabNotes', this)">
+                <span class="icon">📝</span>
+                Notes
+            </button>
+        </div>
+    </div>
+
+    <!-- ÉCRAN: Export -->
+    <div class="screen" id="exportScreen">
+        <div class="header">
+            <h1>Exporter</h1>
+            <div class="subtitle">Terminer le rapport</div>
+        </div>
+
+        <div class="card">
+            <h3 id="exportProjectName" style="margin-bottom: 15px;">Projet</h3>
+
+            <div class="info-row">
+                <span class="label">⏱️ Durée</span>
+                <span class="value" id="exportDuration">0h 00min</span>
+            </div>
+            <div class="info-row">
+                <span class="label">📍 Distance</span>
+                <span class="value" id="exportDistance">0 km</span>
+            </div>
+            <div class="info-row">
+                <span class="label">📸 Photos</span>
+                <span class="value" id="exportPhotoCount">0</span>
+            </div>
+            <div class="info-row">
+                <span class="label">📝 Notes</span>
+                <span class="value" id="exportNotesStatus">Aucune</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="color: #FF6B35; margin-bottom: 10px;">📤 Exportation</h3>
+            <p style="font-size: 14px; line-height: 1.6; color: #666;">
+                1. Appuyez sur "Exporter"<br>
+                2. Choisissez "Enregistrer dans Dropbox"<br>
+                3. Naviguez vers le dossier client<br>
+                4. Le JSON sera exporté séparément pour le serveur
+            </p>
+        </div>
+
+        <button class="btn" onclick="exportReport()">📤 Exporter HTML</button>
+        <button class="btn" onclick="exportJSON()">📦 Exporter JSON</button>
+        <button class="btn btn-secondary" onclick="showScreen('activeReportScreen')">Continuer le rapport</button>
+    </div>
+
+    <!-- Alert -->
+    <div id="alert" class="alert">
+        <div class="title" id="alertTitle"></div>
+        <div class="message" id="alertMessage"></div>
+    </div>
+
+    <script>
+        // ===== VARIABLES GLOBALES =====
+        let config = null;
+        let activeReport = null;
+        let projects = [];
+        let filteredProjects = [];
+        let timerInterval = null;
+        let gpsWatchId = null;
+        let recentReports = [];
+
+        // ===== INITIALISATION =====
+        function init() {
+            // Charger config
+            const savedConfig = localStorage.getItem('versatyl_config');
+            if (savedConfig) {
+                config = JSON.parse(savedConfig);
+                showScreen('homeScreen');
+                loadRecentReports();
+                updateHomeStats();
+            } else {
+                showScreen('configScreen');
+            }
+
+            // Charger rapport actif
+            const savedReport = localStorage.getItem('versatyl_active_report');
+            if (savedReport) {
+                activeReport = JSON.parse(savedReport);
+                document.getElementById('activeReportCard').style.display = 'block';
+                document.getElementById('activeReportTitle').textContent = activeReport.projectName;
+                startReportTimer();
+            }
+
+            // Auto-sauvegarde toutes les 5 secondes
+            setInterval(autoSave, 5000);
+        }
+
+        // ===== CONFIGURATION =====
+        function saveConfig() {
+            const employeeName = document.getElementById('configEmployeeName').value.trim();
+            const apiKey = document.getElementById('configApiKey').value.trim();
+            const token = document.getElementById('configToken').value.trim();
+            const boardId = document.getElementById('configBoardId').value.trim();
+            const labelName = document.getElementById('configLabelName').value.trim();
+
+            if (!employeeName || !apiKey || !token || !boardId || !labelName) {
+                showAlert('Erreur', 'Tous les champs sont requis');
+                return;
+            }
+
+            config = { employeeName, apiKey, token, boardId, labelName };
+            localStorage.setItem('versatyl_config', JSON.stringify(config));
+
+            showAlert('Succès', 'Configuration enregistrée!');
+            showScreen('homeScreen');
+            document.getElementById('homeEmployeeName').textContent = employeeName;
+        }
+
+        // ===== ÉCRANS =====
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+
+            if (screenId === 'homeScreen') {
+                loadRecentReports();
+                updateHomeStats();
+                if (config) {
+                    document.getElementById('homeEmployeeName').textContent = config.employeeName;
+                }
+            } else if (screenId === 'selectProjectScreen') {
+                loadProjects();
+            } else if (screenId === 'activeReportScreen') {
+                updateReportUI();
+                startReportTimer();
+            } else if (screenId === 'exportScreen') {
+                updateExportUI();
+            }
+        }
+
+        // ===== CHARGEMENT PROJETS TRELLO =====
+        async function loadProjects() {
+            const list = document.getElementById('projectList');
+            list.innerHTML = '<div class="loading"><div class="spinner"></div><p>Chargement des projets...</p></div>';
+
+            try {
+                // Essayer le cache d'abord
+                const cached = localStorage.getItem('versatyl_projects_cache');
+                if (cached) {
+                    projects = JSON.parse(cached);
+                    displayProjects();
+                }
+
+                // Charger depuis API
+                const url = `https://api.trello.com/1/boards/${config.boardId}/cards?key=${config.apiKey}&token=${config.token}`;
+                const response = await fetch(url);
+
+                if (!response.ok) throw new Error('Erreur API Trello');
+
+                const cards = await response.json();
+
+                // Filtrer par label
+                projects = cards.filter(card => {
+                    return card.labels.some(label => label.name === config.labelName);
+                });
+
+                // Mettre en cache
+                localStorage.setItem('versatyl_projects_cache', JSON.stringify(projects));
+
+                displayProjects();
+            } catch (error) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">⚠️</div>
+                        <p>Impossible de charger les projets</p>
+                        <p style="font-size: 12px; margin-top: 10px;">${error.message}</p>
+                        <button class="btn" onclick="loadProjects()" style="margin-top: 20px; max-width: 200px;">Réessayer</button>
+                    </div>
+                `;
+            }
+        }
+
+        function displayProjects() {
+            const list = document.getElementById('projectList');
+            filteredProjects = projects;
+
+            if (projects.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📋</div>
+                        <p>Aucun projet avec l'étiquette "${config.labelName}"</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = projects.map(project => `
+                <div class="project-item" onclick="startReport('${project.id}', '${project.name.replace(/'/g, "\\'")}')">
+                    <div class="name">${project.name}</div>
+                </div>
+            `).join('');
+        }
+
+        function filterProjects() {
+            const query = document.getElementById('projectSearch').value.toLowerCase();
+            filteredProjects = projects.filter(p => p.name.toLowerCase().includes(query));
+
+            const list = document.getElementById('projectList');
+            list.innerHTML = filteredProjects.map(project => `
+                <div class="project-item" onclick="startReport('${project.id}', '${project.name.replace(/'/g, "\\'")}')">
+                    <div class="name">${project.name}</div>
+                </div>
+            `).join('');
+        }
+
+        // ===== RAPPORT =====
+        function startReport(projectId, projectName) {
+            // Demander permission GPS
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        activeReport = {
+                            id: Date.now(),
+                            projectId: projectId,
+                            projectName: projectName,
+                            employeeName: config.employeeName,
+                            startTime: new Date().toISOString(),
+                            endTime: null,
+                            photos: [],
+                            notes: '',
+                            gps: {
+                                debut: {
+                                    lat: position.coords.latitude,
+                                    lon: position.coords.longitude
+                                },
+                                fin: null,
+                                distance: 0,
+                                tracks: []
+                            }
+                        };
+
+                        saveActiveReport();
+                        startGPSTracking();
+                        showScreen('activeReportScreen');
+                        document.getElementById('reportProjectName').textContent = projectName;
+                    },
+                    error => {
+                        showAlert('GPS', 'Permission GPS refusée. Le tracking sera limité.');
+                        // Continuer quand même
+                        activeReport = {
+                            id: Date.now(),
+                            projectId: projectId,
+                            projectName: projectName,
+                            employeeName: config.employeeName,
+                            startTime: new Date().toISOString(),
+                            endTime: null,
+                            photos: [],
+                            notes: '',
+                            gps: { debut: null, fin: null, distance: 0, tracks: [] }
+                        };
+                        saveActiveReport();
+                        showScreen('activeReportScreen');
+                        document.getElementById('reportProjectName').textContent = projectName;
+                    }
+                );
+            }
+        }
+
+        function continueActiveReport() {
+            showScreen('activeReportScreen');
+            document.getElementById('reportProjectName').textContent = activeReport.projectName;
+            document.getElementById('reportNotes').value = activeReport.notes || '';
+            updateReportUI();
+            startGPSTracking();
+        }
+
+        function startGPSTracking() {
+            if (!navigator.geolocation || !activeReport) return;
+
+            gpsWatchId = navigator.geolocation.watchPosition(
+                position => {
+                    const newPos = {
+                        lat: position.coords.latitude,
+                        lon: position.coords.longitude,
+                        timestamp: new Date().toISOString()
+                    };
+
+                    activeReport.gps.tracks.push(newPos);
+                    activeReport.gps.fin = { lat: newPos.lat, lon: newPos.lon };
+
+                    // Calculer distance
+                    if (activeReport.gps.debut) {
+                        activeReport.gps.distance = calculateTotalDistance();
+                    }
+
+                    saveActiveReport();
+                    updateReportUI();
+                },
+                error => console.error('GPS error:', error),
+                { enableHighAccuracy: true, timeout: 30000, maximumAge: 10000 }
+            );
+        }
+
+        function calculateTotalDistance() {
+            const tracks = activeReport.gps.tracks;
+            if (tracks.length < 2) return 0;
+
+            let total = 0;
+            for (let i = 1; i < tracks.length; i++) {
+                total += haversineDistance(
+                    tracks[i-1].lat, tracks[i-1].lon,
+                    tracks[i].lat, tracks[i].lon
+                );
+            }
+            return Math.round(total * 10) / 10;
+        }
+
+        function haversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = toRad(lat2 - lat1);
+            const dLon = toRad(lon2 - lon1);
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function toRad(deg) {
+            return deg * (Math.PI / 180);
+        }
+
+        function startReportTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+
+            timerInterval = setInterval(() => {
+                if (!activeReport) return;
+
+                const duration = Math.floor((new Date() - new Date(activeReport.startTime)) / 1000);
+                const hours = Math.floor(duration / 3600);
+                const mins = Math.floor((duration % 3600) / 60);
+                const secs = duration % 60;
+
+                const timeStr = `${pad(hours)}:${pad(mins)}:${pad(secs)}`;
+
+                const timerEl = document.getElementById('reportTimer');
+                if (timerEl) timerEl.textContent = timeStr;
+
+                const activeTimerEl = document.getElementById('activeReportTime');
+                if (activeTimerEl) activeTimerEl.textContent = timeStr;
+            }, 1000);
+        }
+
+        function pad(num) {
+            return num.toString().padStart(2, '0');
+        }
+
+        function updateReportUI() {
+            if (!activeReport) return;
+
+            document.getElementById('reportDistance').textContent = `${activeReport.gps.distance || 0} km`;
+            document.getElementById('reportPhotoCount').textContent = `${activeReport.photos.length} prises`;
+            document.getElementById('reportNotesStatus').textContent = activeReport.notes ? 'Complété' : 'Aucune';
+
+            // Photos
+            const grid = document.getElementById('photoGrid');
+            if (activeReport.photos.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><div class="icon">📸</div><p>Aucune photo</p></div>';
+            } else {
+                grid.innerHTML = activeReport.photos.map((photo, i) => `
+                    <div class="photo-item">
+                        <img src="${photo}" alt="Photo ${i+1}">
+                        <button class="remove" onclick="removePhoto(${i})">✕</button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // ===== PHOTOS =====
+        function addPhotos(event) {
+            const files = event.target.files;
+            let processed = 0;
+
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    activeReport.photos.push(e.target.result);
+                    processed++;
+
+                    if (processed === files.length) {
+                        saveActiveReport();
+                        updateReportUI();
+                        showAlert('Photos', `${files.length} photo(s) ajoutée(s)`);
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+
+            event.target.value = '';
+        }
+
+        function removePhoto(index) {
+            if (confirm('Supprimer cette photo?')) {
+                activeReport.photos.splice(index, 1);
+                saveActiveReport();
+                updateReportUI();
+            }
+        }
+
+        // ===== NOTES =====
+        function updateNotes() {
+            activeReport.notes = document.getElementById('reportNotes').value;
+            saveActiveReport();
+        }
+
+        // ===== TABS =====
+        function switchTab(tabId, button) {
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+            document.getElementById(tabId).style.display = 'block';
+            button.classList.add('active');
+        }
+
+        // ===== EXPORT =====
+        function updateExportUI() {
+            if (!activeReport) return;
+
+            const duration = Math.floor((new Date() - new Date(activeReport.startTime)) / 60000);
+            const hours = Math.floor(duration / 60);
+            const mins = duration % 60;
+
+            document.getElementById('exportProjectName').textContent = activeReport.projectName;
+            document.getElementById('exportDuration').textContent = `${hours}h ${pad(mins)}min`;
+            document.getElementById('exportDistance').textContent = `${activeReport.gps.distance || 0} km`;
+            document.getElementById('exportPhotoCount').textContent = activeReport.photos.length;
+            document.getElementById('exportNotesStatus').textContent = activeReport.notes ? 'Complété' : 'Aucune';
+        }
+
+        async function exportReport() {
+            if (!activeReport) return;
+
+            activeReport.endTime = new Date().toISOString();
+            const duration = Math.floor((new Date(activeReport.endTime) - new Date(activeReport.startTime)) / 60000);
+
+            const html = generateHTMLReport(activeReport, duration);
+            const blob = new Blob([html], { type: 'text/html' });
+            const file = new File([blob], `rapport_${activeReport.projectName.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.html`, { type: 'text/html' });
+
+            if (navigator.share && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        title: `Rapport: ${activeReport.projectName}`,
+                        text: 'Rapport de chantier',
+                        files: [file]
+                    });
+
+                    finishReport();
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        showAlert('Erreur', 'Impossible de partager: ' + err.message);
+                    }
+                }
+            } else {
+                // Fallback: téléchargement
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `rapport_${activeReport.projectName.replace(/[^a-zA-Z0-9]/g, '_')}.html`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                showAlert('Export', 'Rapport téléchargé!');
+                setTimeout(finishReport, 2000);
+            }
+        }
+
+        async function exportJSON() {
+            if (!activeReport) return;
+
+            activeReport.endTime = new Date().toISOString();
+            const duration = Math.floor((new Date(activeReport.endTime) - new Date(activeReport.startTime)) / 60000);
+
+            const jsonData = {
+                version: '1.0',
+                type: 'rapport_chantier_mobile',
+                timestamp: new Date().toISOString(),
+                employeeName: activeReport.employeeName,
+                date: new Date().toISOString().split('T')[0],
+                duree_minutes: duration,
+                projectType: 'trello',
+                projectId: activeReport.projectId,
+                projectName: activeReport.projectName,
+                notes: activeReport.notes,
+                photos: activeReport.photos.length,
+                gps: activeReport.gps
+            };
+
+            const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+            const file = new File([blob], `import_${activeReport.projectName.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.json`, { type: 'application/json' });
+
+            if (navigator.share && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        title: 'Export JSON pour serveur',
+                        text: 'À placer dans /Dropbox/Versatyl/RapportsChantier/Import',
+                        files: [file]
+                    });
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        showAlert('Erreur', 'Impossible de partager: ' + err.message);
+                    }
+                }
+            } else {
+                // Fallback
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `import_${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                showAlert('Export', 'JSON téléchargé!');
+            }
+        }
+
+        function finishReport() {
+            // Ajouter aux rapports récents
+            recentReports.unshift({
+                projectName: activeReport.projectName,
+                date: new Date().toISOString().split('T')[0],
+                duration: Math.floor((new Date() - new Date(activeReport.startTime)) / 60000),
+                photos: activeReport.photos.length,
+                distance: activeReport.gps.distance
+            });
+
+            if (recentReports.length > 10) recentReports = recentReports.slice(0, 10);
+            localStorage.setItem('versatyl_recent_reports', JSON.stringify(recentReports));
+
+            // Nettoyer rapport actif
+            localStorage.removeItem('versatyl_active_report');
+            activeReport = null;
+
+            if (gpsWatchId) {
+                navigator.geolocation.clearWatch(gpsWatchId);
+                gpsWatchId = null;
+            }
+
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+
+            document.getElementById('activeReportCard').style.display = 'none';
+
+            showScreen('homeScreen');
+            showAlert('Succès', 'Rapport terminé et exporté!');
+        }
+
+        function cancelReport() {
+            if (confirm('Annuler le rapport? Toutes les données seront perdues.')) {
+                localStorage.removeItem('versatyl_active_report');
+                activeReport = null;
+
+                if (gpsWatchId) {
+                    navigator.geolocation.clearWatch(gpsWatchId);
+                    gpsWatchId = null;
+                }
+
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+
+                document.getElementById('activeReportCard').style.display = 'none';
+                showScreen('homeScreen');
+            }
+        }
+
+        // ===== GÉNÉRATION HTML =====
+        function generateHTMLReport(report, duration) {
+            const hours = Math.floor(duration / 60);
+            const mins = duration % 60;
+            const durationStr = hours > 0 ? `${hours}h ${pad(mins)}min` : `${mins}min`;
+
+            const photosHTML = report.photos.map((photo, i) =>
+                `<img src="${photo}" alt="Photo ${i+1}" style="width: 100%; height: 250px; object-fit: cover; border-radius: 8px;">`
+            ).join('');
+
+            return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport - ${report.projectName}</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; background: #f5f5f7; }
+        .header { background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%); color: white; padding: 30px; border-radius: 16px; margin-bottom: 30px; }
+        .header h1 { margin: 0 0 10px 0; font-size: 28px; }
+        .section { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .section h2 { font-size: 18px; color: #FF6B35; margin-bottom: 15px; }
+        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0; }
+        .stat-box { text-align: center; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .stat-box .number { font-size: 32px; font-weight: bold; color: #FF6B35; }
+        .stat-box .label { font-size: 12px; color: #666; margin-top: 5px; }
+        .photo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .notes { line-height: 1.8; white-space: pre-wrap; background: #f9f9f9; padding: 15px; border-radius: 8px; }
+        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+        @media print { body { background: white; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div style="font-size: 48px; margin-bottom: 10px;">🏗️</div>
+        <h1>${report.projectName}</h1>
+        <div>👷 ${report.employeeName}</div>
+        <div>📅 ${new Date().toLocaleDateString('fr-CA')} • ⏱️ ${durationStr} • 📍 ${report.gps.distance || 0} km</div>
+    </div>
+
+    <div class="stat-grid">
+        <div class="stat-box"><div class="number">${durationStr}</div><div class="label">Durée</div></div>
+        <div class="stat-box"><div class="number">${report.gps.distance || 0}</div><div class="label">Kilomètres</div></div>
+        <div class="stat-box"><div class="number">${report.photos.length}</div><div class="label">Photos</div></div>
+    </div>
+
+    ${report.notes ? `<div class="section"><h2>📝 Notes</h2><div class="notes">${report.notes}</div></div>` : ''}
+
+    ${report.photos.length > 0 ? `<div class="section"><h2>📸 Photos (${report.photos.length})</h2><div class="photo-grid">${photosHTML}</div></div>` : ''}
+
+    <div class="section">
+        <h2>🗺️ GPS</h2>
+        <div class="info-row"><span>Distance totale</span><span><strong>${report.gps.distance || 0} km</strong></span></div>
+        ${report.gps.debut ? `<div class="info-row"><span>Point de départ</span><span>${report.gps.debut.lat.toFixed(4)}, ${report.gps.debut.lon.toFixed(4)}</span></div>` : ''}
+        ${report.gps.fin ? `<div class="info-row"><span>Point d'arrivée</span><span>${report.gps.fin.lat.toFixed(4)}, ${report.gps.fin.lon.toFixed(4)}</span></div>` : ''}
+    </div>
+
+    <div style="text-align: center; color: #86868b; font-size: 12px; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e5e7;">
+        <strong>Atelier Versatyl</strong><br>
+        Rapport généré le ${new Date().toLocaleString('fr-CA')}<br>
+        📱 Versatyl Chantier v1.0
+    </div>
+</body>
+</html>`;
+        }
+
+        // ===== SAUVEGARDE & CHARGEMENT =====
+        function saveActiveReport() {
+            if (activeReport) {
+                localStorage.setItem('versatyl_active_report', JSON.stringify(activeReport));
+            }
+        }
+
+        function autoSave() {
+            if (activeReport) {
+                saveActiveReport();
+            }
+        }
+
+        function loadRecentReports() {
+            const saved = localStorage.getItem('versatyl_recent_reports');
+            if (saved) {
+                recentReports = JSON.parse(saved);
+                displayRecentReports();
+            }
+        }
+
+        function displayRecentReports() {
+            const container = document.getElementById('recentReports');
+
+            if (recentReports.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = `
+                <h3 style="font-size: 13px; font-weight: 600; color: #86868b; text-transform: uppercase; margin: 20px 0 10px;">Rapports récents</h3>
+                ${recentReports.map(r => `
+                    <div class="card">
+                        <div style="font-weight: 600; margin-bottom: 8px;">${r.projectName}</div>
+                        <div style="font-size: 13px; color: #86868b;">
+                            ⏱️ ${Math.floor(r.duration / 60)}h ${pad(r.duration % 60)}min •
+                            📸 ${r.photos} photos •
+                            📍 ${r.distance || 0} km
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function updateHomeStats() {
+            document.getElementById('homeReportCount').textContent = recentReports.length;
+            document.getElementById('homePhotoCount').textContent = recentReports.reduce((sum, r) => sum + r.photos, 0);
+        }
+
+        // ===== UTILITAIRES =====
+        function showAlert(title, message) {
+            document.getElementById('alertTitle').textContent = title;
+            document.getElementById('alertMessage').textContent = message;
+            document.getElementById('alert').classList.add('show');
+
+            setTimeout(() => {
+                document.getElementById('alert').classList.remove('show');
+            }, 3000);
+        }
+
+        // ===== DÉMARRAGE =====
+        window.addEventListener('load', init);
+
+        // Sauvegarder avant fermeture
+        window.addEventListener('beforeunload', () => {
+            if (activeReport) {
+                saveActiveReport();
+            }
+        });
+    </script>
+</body>
+</html>
